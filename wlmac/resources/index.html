@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<!-- macOS 版界面(本仓库新增)。协议逆向来源:YZBRH/Welearn_helper — 原作者 Avenshy,维护者 YZBRH / lxbsdsg · GPLv3 -->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WeLearn Helper</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo"><span>W</span></div>
+    <div class="brand-text">
+      <h1>WeLearn Helper</h1>
+      <span class="version" id="version">—</span>
+    </div>
+  </div>
+
+  <div class="seg" id="mode-seg">
+    <span class="seg-thumb" id="seg-thumb"></span>
+    <button class="seg-item is-active" data-mode="accuracy">刷完成度 / 正确率</button>
+    <button class="seg-item" data-mode="time">刷学习时长</button>
+  </div>
+
+  <div class="topbar-right">
+    <div class="status-pill" id="status-pill"><i class="dot"></i><span id="status-text">待命</span></div>
+    <button class="icon-btn" id="help-btn" title="使用说明">?</button>
+  </div>
+</header>
+
+<main class="layout">
+  <aside class="sidebar">
+    <section class="card">
+      <div class="card-head">
+        <h2>账号</h2>
+        <span class="hint" id="account-hint">未登录</span>
+      </div>
+
+      <form class="login-form" id="login-form" autocomplete="on">
+        <label class="field">
+          <span>账号</span>
+          <input id="username" type="text" spellcheck="false" autocomplete="username" placeholder="学号 / 手机号">
+        </label>
+        <label class="field">
+          <span>密码</span>
+          <input id="password" type="password" autocomplete="current-password" placeholder="WeLearn 登录密码">
+        </label>
+        <label class="check">
+          <input type="checkbox" id="remember">
+          <span>记住账号与密码(密码存入系统钥匙串)</span>
+        </label>
+        <button class="btn primary block" id="login-btn" type="submit">登录</button>
+      </form>
+
+      <div class="account-info hidden" id="account-info">
+        <div class="avatar" id="avatar">W</div>
+        <div class="account-meta">
+          <strong id="account-name">—</strong>
+          <span id="account-sub">已登录</span>
+        </div>
+        <button class="btn ghost small" id="logout-btn">退出</button>
+      </div>
+    </section>
+
+    <section class="card grow">
+      <div class="card-head">
+        <h2>课程</h2>
+        <button class="btn ghost small" id="refresh-btn" title="重新拉取课程列表">刷新</button>
+      </div>
+      <div class="list" id="course-list">
+        <p class="empty">登录后显示课程</p>
+      </div>
+    </section>
+
+    <section class="card grow">
+      <div class="card-head">
+        <h2>单元</h2>
+        <span class="hint" id="unit-hint"></span>
+      </div>
+      <div class="list" id="unit-list">
+        <p class="empty">选择课程后显示单元</p>
+      </div>
+    </section>
+  </aside>
+
+  <section class="content">
+    <div class="welcome" id="welcome">
+      <div class="welcome-art">
+        <svg viewBox="0 0 240 150" width="240" height="150" aria-hidden="true">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="var(--accent)"/>
+              <stop offset="100%" stop-color="var(--accent-2)"/>
+            </linearGradient>
+          </defs>
+          <rect x="18" y="26" width="150" height="100" rx="14" fill="url(#g1)" opacity="0.16"/>
+          <rect x="18" y="26" width="150" height="100" rx="14" fill="none" stroke="var(--accent)" stroke-opacity="0.5"/>
+          <rect x="34" y="46" width="88" height="8" rx="4" fill="var(--accent)" opacity="0.85"/>
+          <rect x="34" y="64" width="112" height="6" rx="3" fill="currentColor" opacity="0.25"/>
+          <rect x="34" y="78" width="96" height="6" rx="3" fill="currentColor" opacity="0.25"/>
+          <rect x="34" y="92" width="70" height="6" rx="3" fill="currentColor" opacity="0.25"/>
+          <circle cx="186" cy="46" r="20" fill="none" stroke="var(--accent-2)" stroke-width="2" opacity="0.9"/>
+          <path d="M178 46l6 6 11-12" fill="none" stroke="var(--accent-2)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2>三步完成</h2>
+      <ol class="steps">
+        <li><b>左侧登录</b> WeLearn 账号(学号或手机号 + 密码)</li>
+        <li><b>选择课程与单元</b>,可只勾选部分小节</li>
+        <li><b>设置参数后开始</b>,日志实时滚动,随时可停</li>
+      </ol>
+      <p class="fineprint">
+        本应用按上游 <code>Welearn_helper</code> 的逆向结果实现通讯协议;该站点会校验 TLS 指纹,
+        因此内部使用与 Chrome 一致的指纹发起请求。仅供个人学习辅助,请遵守学校规定。
+      </p>
+    </div>
+
+    <div class="workspace hidden" id="workspace">
+      <section class="card">
+        <div class="card-head">
+          <h2>任务参数</h2>
+          <span class="hint" id="param-hint"></span>
+        </div>
+        <div class="param-row">
+          <input class="input param" id="param-input" spellcheck="false" placeholder="100">
+          <div class="presets" id="presets"></div>
+          <div class="spacer"></div>
+          <button class="btn primary" id="start-btn">开始任务</button>
+          <button class="btn danger hidden" id="stop-btn">停止</button>
+        </div>
+        <p class="param-help" id="param-help"></p>
+      </section>
+
+      <section class="card grow section-card">
+        <div class="card-head">
+          <h2>小节</h2>
+          <div class="card-actions">
+            <label class="check inline hidden" id="select-all-wrap">
+              <input type="checkbox" id="select-all">
+              <span>全选</span>
+            </label>
+            <span class="hint" id="section-hint"></span>
+          </div>
+        </div>
+        <div class="list sections" id="section-list">
+          <p class="empty">选择具体单元后可勾选小节</p>
+        </div>
+      </section>
+
+      <section class="card log-card">
+        <div class="card-head">
+          <h2>运行日志</h2>
+          <div class="card-actions">
+            <button class="btn ghost small" id="export-btn">导出</button>
+            <button class="btn ghost small" id="clear-btn">清空</button>
+          </div>
+        </div>
+        <div class="log-body" id="log-body">
+          <p class="log-empty" id="log-empty">暂无日志</p>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<div class="toast hidden" id="toast"></div>
+
+<div class="modal hidden" id="help-modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>使用说明</h2>
+      <button class="icon-btn" id="help-close">×</button>
+    </div>
+    <div class="modal-body">
+      <h3>两种模式</h3>
+      <ul>
+        <li><b>刷完成度 / 正确率</b>:把每个练习标记为已完成,并写入指定正确率
+          (固定值如 <code>100</code>,或区间如 <code>70,100</code>)。</li>
+        <li><b>刷学习时长</b>:给每个小节累计学习时间(固定秒数如 <code>30</code>,
+          或区间如 <code>20,60</code>)。</li>
+      </ul>
+      <h3>关于协议</h3>
+      <p>登录密码并非明文提交:前端把 <code>时间戳*密码hex</code> 做 base64 后提交,
+        并走 OIDC(PKCE) 授权码流程;学习数据通过 <code>/Ajax/SCO.aspx</code> 的
+        <code>setscoinfo</code>、<code>savescoinfo160928</code>、
+        <code>keepsco_with_getticket_with_updatecmitime</code> 等 action 写入。
+        本应用完整沿用该协议,不修改服务端任何数据格式。</p>
+      <h3>提示</h3>
+      <ul>
+        <li>站点对 TLS 指纹敏感,普通脚本会被 405 拦截,不要用 curl/Postman 复现。</li>
+        <li>任务运行时可以随时停止,已提交的小节不会回滚。</li>
+        <li>密码只在本机钥匙串中保存,可随时在「钥匙串访问」里删除 WeLearnHelper 条目。</li>
+      </ul>
+      <p class="fineprint" id="help-credit"></p>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/app.js"></script>
+</body>
+</html>

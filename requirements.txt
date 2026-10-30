@@ -1,0 +1,10 @@
+# 运行时依赖
+tls_client>=2.0.0        # 关键:提供 Chrome TLS 指纹,否则站点直接 405
+flask>=3.0
+pywebview>=5.0           # macOS 上用 WKWebView 承载界面
+pyobjc-framework-Cocoa>=10.0 ; sys_platform == "darwin"
+pyobjc-framework-WebKit>=10.0 ; sys_platform == "darwin"
+pyobjc-framework-Security>=10.0 ; sys_platform == "darwin"   # 钥匙串
+
+# 打包
+pyinstaller>=6.0
